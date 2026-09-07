@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Rabbit Hole 소재 작업대 · 마케터 올인원 안내</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+  :root{color-scheme:light}body{max-width:960px;margin:0 auto;padding:48px 28px 80px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif;color:#202735;background:#fff;line-height:1.8;font-size:16px}h1{font-size:32px;line-height:1.4;border-bottom:3px solid #2457d6;padding-bottom:20px}h2{font-size:23px;margin-top:48px;border-top:1px solid #dde3ec;padding-top:24px}h3{font-size:18px;margin-top:30px}a{color:#2457d6;overflow-wrap:anywhere}code{font-family:Consolas,monospace;font-size:.9em;background:#f1f4f8;padding:2px 5px;border-radius:4px}pre{background:#f4f6fa;border:1px solid #dde3ec;border-radius:8px;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere}pre code{padding:0;background:none}table{border-collapse:collapse;width:100%;margin:20px 0;font-size:14px}th,td{border:1px solid #dce3eb;text-align:left;vertical-align:top;padding:10px}th{background:#edf2fa}li{margin:8px 0}#TOC{border:1px solid #dce3eb;padding:12px 24px;background:#f8fafc;border-radius:8px}#TOC ul{padding-left:20px}#TOC li{margin:3px 0;font-size:14px}img{max-width:100%}@media print{body{padding:0;font-size:11pt;max-width:none}#TOC{break-after:page}h2,h3{break-after:avoid}pre,table{font-size:9pt}a{color:inherit;text-decoration:none}}
+  </style>
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#rabbit-hole-소재-작업대--마케터-올인원-안내"
+id="toc-rabbit-hole-소재-작업대--마케터-올인원-안내">Rabbit Hole 소재
+작업대 · 마케터 올인원 안내</a>
+<ul>
+<li><a href="#이-도구로-하는-일" id="toc-이-도구로-하는-일">이 도구로
+하는 일</a></li>
+<li><a href="#가장-빠른-시작" id="toc-가장-빠른-시작">가장 빠른
+시작</a></li>
+<li><a href="#들어-있는-파일" id="toc-들어-있는-파일">들어 있는
+파일</a></li>
+<li><a href="#처음-한-번" id="toc-처음-한-번">처음 한 번</a></li>
+<li><a href="#claude에게-전달할-문구"
+id="toc-claude에게-전달할-문구">Claude에게 전달할 문구</a></li>
+<li><a href="#파일과-진단-결과" id="toc-파일과-진단-결과">파일과 진단
+결과</a></li>
+<li><a href="#중단된-작업을-이어갈-때"
+id="toc-중단된-작업을-이어갈-때">중단된 작업을 이어갈 때</a></li>
+<li><a href="#브라우저에서-새-광고-준비"
+id="toc-브라우저에서-새-광고-준비">브라우저에서 새 광고 준비</a></li>
+<li><a href="#작업-이력과-증빙" id="toc-작업-이력과-증빙">작업 이력과
+증빙</a></li>
+<li><a href="#업로드-중단로그인-만료-복구"
+id="toc-업로드-중단로그인-만료-복구">업로드 중단·로그인 만료
+복구</a></li>
+<li><a href="#ads-manager-최종-검수와-소재-이력"
+id="toc-ads-manager-최종-검수와-소재-이력">Ads Manager 최종 검수와 소재
+이력</a></li>
+<li><a href="#보관과-이용-한도" id="toc-보관과-이용-한도">보관과 이용
+한도</a></li>
+<li><a href="#관리자에게-문의할-때"
+id="toc-관리자에게-문의할-때">관리자에게 문의할 때</a></li>
+<li><a href="#이-전달본의-확인-범위" id="toc-이-전달본의-확인-범위">이
+전달본의 확인 범위</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="rabbit-hole-소재-작업대--마케터-올인원-안내">Rabbit Hole 소재
+작업대 · 마케터 올인원 안내</h1>
+<p>2026년 9월 7일 전달본</p>
+<p><strong>이 안내와 같은 폴더의 파일만 받으면 시작할 수
+있습니다.</strong> ZIP을 모두 압축 해제한 뒤
+<code>00_START_HERE.html</code>을 더블클릭하세요. 이 문서는 인터넷
+없이도 열리며, 작업대 로그인·광고 조회·업로드에는 인터넷이
+필요합니다.</p>
+<p>작업대: <a
+href="https://meta-ads.rabbithole-studios.io/#agents">meta-ads.rabbithole-studios.io</a><br />
+운영 문의: 강승민 · <a
+href="mailto:smkang@cookapps.com">smkang@cookapps.com</a></p>
+<h2 id="이-도구로-하는-일">이 도구로 하는 일</h2>
+<p>검수한 9:16·1:1·16:9 MP4를 올려 <strong>참조 광고의
+문구·제목·CTA·목적지·배치를 유지한 새 PAUSED 광고</strong>를 만듭니다.
+대상은 Rabbit Hole 광고계정입니다. 최종 활성화와 집행 결정은 Ads
+Manager에서 담당자가 합니다.</p>
+<p>이미지·playable·다른 게임과 Google Sheet 기반 월수금 정기 실행은 아직
+지원하지 않습니다. 이 묶음은 <strong>Windows의 Claude Code가 로컬 파일을
+읽어 CLI로 작업하는 방식</strong>입니다. 일반 Claude 웹 채팅이나
+클라우드 예약 루틴에 ZIP을 첨부하는 것만으로 실행되지는 않습니다. Claude
+Code를 사용하지 않으면 아래 브라우저 사용법대로 작업할 수 있습니다.</p>
+<h2 id="가장-빠른-시작">가장 빠른 시작</h2>
+<ol type="1">
+<li>ZIP을 <strong>모두 압축 해제</strong>합니다. ZIP 안에서 실행하지
+마세요. 실행기와 CLI는 같은 폴더에 둡니다.</li>
+<li>아래 ‘처음 한 번’ 순서로 Node.js와 작업대 로그인을 준비합니다. 이미
+연결했다면 <code>doctor</code>로 상태만 확인합니다.</li>
+<li>압축을 푼 폴더에서 Claude Code를 열고
+<code>CLAUDE_PROMPT_KO.txt</code>의 대괄호를 채운 문구를 전달합니다.
+영상 폴더는 별도로 지정해도 됩니다.</li>
+<li>Claude가 반환한 새 광고 번호와 작업 증빙을 확인하고 Ads Manager에서
+최종 검수합니다.</li>
+</ol>
+<h2 id="들어-있는-파일">들어 있는 파일</h2>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>00_START_HERE.html</code> / <code>00_START_HERE.md</code></td>
+<td>이 올인원 안내. HTML은 브라우저로 열거나 인쇄할 수 있습니다.</td>
+</tr>
+<tr>
+<td><code>CLAUDE_PROMPT_KO.txt</code></td>
+<td>마케터가 조건을 채워 Claude에게 전달할 문구</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Claude Code의 작업 지침. 같은 승인을 반복 질문하지 않고 중복 생성을
+피하도록 안내합니다.</td>
+</tr>
+<tr>
+<td><code>start-windows.cmd</code> / <code>rh-meta.mjs</code></td>
+<td>Windows 실행기와 실제 작업대 CLI</td>
+</tr>
+<tr>
+<td><code>manifest.example.json</code></td>
+<td>Claude가 실제 조회 결과로 채워 사용할 작업 설정 예시</td>
+</tr>
+<tr>
+<td><code>START_HERE_KO.md</code></td>
+<td>CLI 빠른 시작 원본</td>
+</tr>
+<tr>
+<td><code>MARKETER_GUIDE_KO.md</code></td>
+<td>브라우저·CLI 상세 매뉴얼 원본</td>
+</tr>
+<tr>
+<td><code>PACKAGE_INFO.json</code> / <code>CHECKSUMS.sha256</code></td>
+<td>전달본 버전과 파일 무결성 기록</td>
+</tr>
+</tbody>
+</table>
+<p>원본 영상과 로그인 토큰은 포함하지 않았습니다. 예시의 ID·검수 해시는
+실제 값으로 바꿔야 하며, manifest는 Claude에게 작성하도록 맡겨도 됩니다.
+이 파일 묶음은 프로그램 전체를 재배포하는 개발자 소스가 아니므로
+<code>npm install</code>이나 Cloudflare 로그인은 필요하지 않습니다.</p>
+<h2 id="처음-한-번">처음 한 번</h2>
+<ol type="1">
+<li><code>start-windows.cmd</code>를 더블클릭합니다. 기본으로 연결
+진단(<code>doctor</code>)을 실행하고 결과를 보여줍니다. Node.js가 없거나
+22 미만이면 <a
+href="https://nodejs.org/en/download">https://nodejs.org/en/download</a>에서
+22 이상을 직접 설치하고 터미널을 다시 여세요. 실행기는 자동 설치, 관리자
+권한 요청, ExecutionPolicy 변경을 하지 않습니다.</li>
+<li>작업대의 <strong>Claude Code 연결</strong>에서 본인 <strong>7일
+토큰</strong>을 발급합니다. 이 폴더에서 사람이 직접 PowerShell을 열어
+다음을 실행합니다.</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> login</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> doctor</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> whoami</span></code></pre></div>
+<p><code>login</code>의 숨김 입력에만 토큰을 붙여넣습니다.
+<code>doctor</code>의 <code>"ok": true</code>로 연결 상태를 확인하고,
+<code>whoami</code>로 본인 이메일을 확인합니다. Claude에게 토큰이나 저장
+파일을 넘기지 마세요. 토큰은 7일 뒤 만료되므로 그때 새로 발급해 다시
+로그인합니다.</p>
+<ol start="3" type="1">
+<li>아래 문구의 대괄호를 실제 값으로 바꾸고 Claude에게 전달합니다. 소재
+폴더에는 검수한 9:16·1:1·16:9 MP4를 하나씩 둡니다. 각 파일은 512 MiB
+이하여야 합니다. 아직 검수하지 않은 항목을 검수했다고 적지 마세요.</li>
+</ol>
+<h2 id="claude에게-전달할-문구">Claude에게 전달할 문구</h2>
+<pre class="text"><code>이 폴더의 CLAUDE.md와 START_HERE_KO.md를 읽고 Rabbit Hole 소재 작업을 완료해 주세요.
+소재 폴더: [예: C:\광고 소재\이번 주 영상]
+대상 광고 세트: [ID 또는 정확한 이름]
+검수한 참조 광고: [ID 또는 정확한 이름]
+신규 광고명: [기존 광고와 구분되는 이름]
+언어: [예: EN]
+검수 범위: 이 폴더의 9:16·1:1·16:9 영상 내용과 참조 광고의 문구·CTA·목적지·배치를 확인했습니다.
+승인 범위: 위 설정을 유지하고 이 소재 묶음으로 새 creative와 새 PAUSED 광고 1개를 생성하는 데 승인합니다.
+
+doctor → 대상/참조 조회와 preview → manifest 작성 → check-manifest → prepare 또는 기존 초안 resume → 승인된 submit 1회 → wait → lineage → 증빙 export까지 진행하세요.
+이미 명시한 대상·참조·생성 승인에 대해 다시 묻지 마세요. 정보 누락, 후보가 모호한 경우, 검수본 변경이 있을 때만 필요한 내용을 묶어 질문하세요.
+토큰 원문이나 credential 파일을 읽지 말고 저장된 로그인을 CLI가 사용하게 하세요. 최초/만료 로그인은 제가 직접 숨김 입력으로 합니다.
+기존 광고 변경·활성화·예산 변경은 금지합니다. 응답이 불명확하면 재제출하거나 새 초안을 만들지 말고 같은 작업의 상태를 확인하세요.
+본인이 만든 작업이 FAILED_TERMINAL + AD_PAUSED_TIMEOUT이고 확정 광고·creative·최초 이력이 있으면 recheck-paused OPERATION_UUID를 1회 실행하세요. 계속 심사 중이거나 검증 실패이면 같은 작업의 status와 export로 증빙을 남기고 멈추세요. 생성 결과 불명확·기록 누락·다른 오류·다른 사람의 작업은 관리자에게 전달하세요.
+재확인 성공 응답 뒤에도 status로 AWAITING_MARKETER_REVIEW 상태를 확인한 후 lineage와 export를 마치세요.
+작업 ID·새 광고 ID·실제 최종 상태·증빙 경로와 남은 확인 사항을 알려주세요.</code></pre>
+<p>생성까지 승인하지 않으려면 <strong>승인 범위</strong>를 “검수와 초안
+업로드까지만 진행하고 submit은 하지 마세요”로 바꿉니다. 아직 모르는 ID는
+정확한 이름을 적어도 되지만 같은 이름이 여러 개면 Claude가 구분을
+요청합니다. 영상이 여러 묶음이면 각 묶음의 이름과 생성 수를 구체적으로
+지정하세요. 추가 묶음을 임의로 생성하지 않습니다.</p>
+<h2 id="파일과-진단-결과">파일과 진단 결과</h2>
+<p>PowerShell에서 경로의 공백·한글을 보존하려면 따옴표를 사용하세요.
+아래 명령의 상대 경로는 현재 PowerShell 폴더 기준이며, manifest 안의
+상대 영상 경로는 manifest 폴더 기준입니다.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> check-manifest <span class="st">&quot;C:\광고 소재\이번 주 영상\manifest.json&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> <span class="op">--</span>help</span></code></pre></div>
+<p><code>check-manifest</code>는 로그인 없이 로컬 JSON/BOM, 파일·MP4
+헤더·크기·SHA-256을 검사합니다. 화면비 항목 세 개가 있다는 것과 실제
+영상 해상도가 맞다는 것은 다릅니다. 해상도·회전·재생·게임/내용·Meta
+호환성·참조 변경은 별도 확인이 필요하며 결과의 <code>notChecked</code>를
+읽으세요. 검사만으로 업로드나 광고 생성은 일어나지 않습니다.</p>
+<table>
+<thead>
+<tr>
+<th>진단/상황</th>
+<th>할 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js 없음 / 22 미만</td>
+<td>공식 사이트에서 설치한 뒤 터미널을 다시 엽니다.</td>
+</tr>
+<tr>
+<td>login 필요 / unauthorized</td>
+<td>본인 7일 토큰을 발급해 직접 <code>login</code>합니다.
+만료·취소·오입력 여부는 이 응답만으로 구분되지 않습니다.</td>
+</tr>
+<tr>
+<td>unsafe_permissions</td>
+<td>로컬 NTFS 사용자 프로필을 쓰고 관리자에게 문의합니다. 권한 검사를
+우회하지 않습니다.</td>
+</tr>
+<tr>
+<td>access_redirect / access_html</td>
+<td>운영자에게 API 전용 경로 설정을 확인해 달라고 합니다. 웹 인증을
+해제하지 않습니다.</td>
+</tr>
+<tr>
+<td>네트워크·서비스 오류 / rate_limited</td>
+<td>결과의 <code>nextAction</code>을 확인합니다. 준비·제출을 반복하지
+않습니다.</td>
+</tr>
+</tbody>
+</table>
+<p><code>doctor</code>와 <code>check-manifest</code>는 정상일 때 종료
+코드 0, 조치가 필요하면 1을 반환합니다. Claude는 더블클릭용 대기 없이
+<code> .\start-windows.cmd doctor</code>처럼 명령을 명시해서
+실행합니다.</p>
+<h2 id="중단된-작업을-이어갈-때">중단된 작업을 이어갈 때</h2>
+<p><code>prepare</code>가 출력한 작업 ID를 보관하세요. 업로드 중 끊겨도
+<code>prepare</code>를 다시 실행하지 않습니다.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> status OPERATION_UUID</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> resume OPERATION_UUID <span class="op">--</span>manifest <span class="st">&quot;.\manifest.json&quot;</span></span></code></pre></div>
+<p>ID가 없으면 <code>list --query "신규 광고명"</code>으로 기존 초안을
+먼저 찾습니다. 같은 원본·설정의 미제출 초안만 재개할 수 있습니다. 이미
+제출했거나 생성 결과가 불명확하면 관리자에게 작업 ID와 증빙을
+전달합니다.</p>
+<h3 id="광고-생성-후-상태-확인이-늦어질-때">광고 생성 후 상태 확인이
+늦어질 때</h3>
+<p>본인이 초안을 만든 작업(<code>submitted_by</code>)이
+<code>FAILED_TERMINAL</code>이고 오류가
+<code>AD_PAUSED_TIMEOUT</code>이면 다음을 한 번 실행합니다. 확정된
+광고·creative와 최초 이력 기록이 있는 작업만 가능합니다.</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\start-windows<span class="op">.</span><span class="fu">cmd</span> recheck-paused OPERATION_UUID</span></code></pre></div>
+<p>이 명령은 기존 광고와 참조·검수 hash·최초 이력·PAUSED 상태·미리보기를
+모두 다시 검증합니다. Meta에는 조회만 하며, 모두 통과하면 기존 작업
+상태를 갱신합니다. 새 광고 생성이나 기존 광고 수정은 하지 않습니다.</p>
+<p>성공 응답 뒤에도 <code>status</code>로
+<code>AWAITING_MARKETER_REVIEW</code> 상태를 확인하고
+<code>lineage</code>와 <code>export</code>를 마칩니다.</p>
+<p>계속 <code>AD_PAUSED_PENDING</code> 등으로 심사 중이거나 검증을
+통과하지 못하면 재확인을 반복하지 말고 같은 작업의 <code>status</code>와
+<code>export</code>로 증빙을 남긴 뒤 관리자에게 전달합니다.
+<code>prepare</code>·<code>submit</code>을 다시 실행하지 마세요. 생성
+결과 불명확, 확정 ID·최초 이력 누락, 다른 오류, 다른 사람의 작업은 기존
+<strong>Owner 안전 재확인</strong> 대상입니다. 이 owner 기능은 CLI가
+실행할 수 없습니다.</p>
+<p><code>AWAITING_MARKETER_REVIEW</code>는 작업대 검증 완료이며 Meta
+심사 승인이나 집행 시작을 뜻하지 않습니다. 재확인도 심사 완료를 강제하지
+못합니다. 최종 집행은 마케터가 Ads Manager에서 검수한 뒤 결정합니다.</p>
+<h2 id="브라우저에서-새-광고-준비">브라우저에서 새 광고 준비</h2>
+<h3 id="1-광고-세트와-참조-광고-검수">1. 광고 세트와 참조 광고 검수</h3>
+<ol type="1">
+<li><strong>새 광고 준비</strong>를 엽니다.</li>
+<li><strong>대상 광고 세트</strong>를 선택하고, 그 세트의 <strong>참조
+광고</strong>를 선택합니다. 목록이 길면 더 불러오기를 사용합니다. 목록
+조회가 실패하면 <strong>목록 다시 불러오기</strong>를 누릅니다.</li>
+<li>정확한 ID를 알고 있다면 <strong>광고 ID로 직접 선택</strong>을 펼쳐
+입력할 수 있습니다. 직접 입력해도 계정·광고 세트 검증은 동일하게
+적용됩니다.</li>
+<li><strong>참조 광고 확인</strong>을 누릅니다. 광고명, 캠페인, 광고
+세트, 본문, 제목, CTA와 목적지를 읽고 **문구·CTA·목적지를
+확인했습니다.**에 체크합니다.</li>
+</ol>
+<p>참조 광고 선택이나 ID를 바꾸면 다시 검수해야 합니다. 검수한 뒤 참조
+광고의 이름·소재·문구 등이 바뀌면 서버가 생성을 중단합니다. 변경 내용을
+확인하고 최신 검수본으로 새 작업을 준비하세요.</p>
+<h3 id="2-세-영상-업로드">2. 세 영상 업로드</h3>
+<ol type="1">
+<li>기존 광고와 구분되는 <strong>신규 광고명</strong>과
+<strong>언어</strong>를 입력합니다. 광고명은 160자 이하이며
+문자·숫자·공백과 <code>_ . ( ) -</code>를 사용할 수 있습니다.</li>
+<li>세 화면비에 맞는 MP4를 선택합니다. 각 영상의 재생, 해상도, 길이와
+내용을 확인합니다.</li>
+<li><strong>업로드하고 검수하기</strong>를 누릅니다. 파일 해시 계산과
+업로드가 끝날 때까지 창을 유지합니다.</li>
+<li>업로드가 끝나면 상세가 열리고 상태가 <strong>제출 준비</strong>가
+됩니다. <strong>이 단계에서는 Meta 광고를 아직 생성하지
+않습니다.</strong></li>
+</ol>
+<h3 id="3-신규-paused-생성-확인">3. 신규 PAUSED 생성 확인</h3>
+<ol type="1">
+<li>상세 화면에서 업로드된 세 영상을 다시 확인합니다. 필요하면
+<strong>영상 다운로드</strong>로 원본을 받습니다.</li>
+<li>**세 영상을 확인했습니다. 기존 광고를 변경하지 않고 새 PAUSED 광고를
+생성합니다.**에 체크합니다.</li>
+<li><strong>새 PAUSED 광고 생성</strong>을 한 번 누릅니다.</li>
+<li>제출이 확인되면 서버가 처리를 계속하므로 브라우저를 닫아도 됩니다.
+<strong>작업 이력</strong> 또는 <strong>작업 상태 새로고침</strong>으로
+결과를 확인합니다.</li>
+</ol>
+<p>생성 버튼을 누른 뒤 연결이 끊기면 먼저 같은 작업의 상태를 확인하세요.
+응답이 없다고 같은 작업을 반복 제출하거나 새 작업으로 다시 생성하지
+않습니다.</p>
+<h2 id="작업-이력과-증빙">작업 이력과 증빙</h2>
+<p><strong>작업 이력</strong>에서 광고명, 작업 번호 또는 신규 광고
+번호로 검색하고 상태로 좁힐 수 있습니다. <strong>이전 작업 더
+보기</strong>로 이전 이력을 불러옵니다. 이력과 열린 상세의 진행 상태는
+화면이 활성화되어 있고 업로드 중이 아닐 때 약 15초마다 갱신됩니다.</p>
+<p>광고명을 눌러 상세를 열면 작업 번호,
+<code>rh-op:&lt;작업 번호&gt;</code> 검색 태그, 참조 광고, 신규
+광고·creative 번호, 세 영상과 작업 기록을 볼 수 있습니다. <strong>작업
+증빙 다운로드</strong>는 설정, 검수본, 소재 정보, 감사 기록과 외부 생성
+요청 기록을 JSON으로 내보냅니다. <strong>검색 태그 복사</strong>는 Ads
+Manager에서 생성된 리소스를 찾을 때 사용합니다.</p>
+<table>
+<thead>
+<tr>
+<th>화면 상태</th>
+<th>의미와 다음 행동</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>업로드 대기</td>
+<td>초안이 있거나 일부 영상 업로드가 남았습니다. 같은 작업에서 업로드를
+이어갑니다.</td>
+</tr>
+<tr>
+<td>제출 준비</td>
+<td>세 영상 업로드가 완료됐습니다. 상세에서 검수하고 명시적으로 신규
+PAUSED 생성을 제출합니다.</td>
+</tr>
+<tr>
+<td>제출됨 / CDN 검증 중 / Meta 영상 처리 중 / 광고 생성 중</td>
+<td>서버가 처리 중입니다. 상태를 확인하며 기다립니다.</td>
+</tr>
+<tr>
+<td>마케터 검수 대기</td>
+<td>작업대가 새 광고의 PAUSED 상태와 필요한 검증을 확인했습니다. Ads
+Manager에서 최종 검수합니다. Meta 심사 승인이나 광고 집행 완료를 뜻하지
+않습니다.</td>
+</tr>
+<tr>
+<td>안전 중단</td>
+<td>검증에 실패했습니다. <strong>중단 전에 영상·creative·광고가 이미
+생성됐을 수 있습니다.</strong> 상세 오류와 작업 번호를 관리자에게
+전달합니다.</td>
+</tr>
+<tr>
+<td>생성 여부 확인 필요</td>
+<td>Meta 생성 요청의 결과를 확정하지 못했습니다. 자동 재시도하지
+않습니다. 같은 작업 상태와 검색 태그를 확인하고 관리자에게
+넘깁니다.</td>
+</tr>
+</tbody>
+</table>
+<p>광고 번호가 비어 있어도 미생성이 확정된 것은 아닙니다. 관리자는 작업
+원장과 Meta의 실제 상태를 함께 확인해야 합니다. <strong>Owner 안전
+재확인</strong>은 owner 브라우저에만 표시되며, 기존 광고를 수정하거나
+생성 POST를 다시 보내는 기능이 아닙니다. 확인에 필요한 기록이 부족하면
+복구를 중단합니다.</p>
+<p><code>AD_PAUSED_TIMEOUT</code>은 새 광고가 생성됐지만 Meta의 최종
+PAUSED 상태 확인이 제한 시간 안에 끝나지 않았다는 뜻입니다. 광고 설정이
+PAUSED여도 Meta 심사가 진행 중이면 발생할 수 있습니다. 본인이 만든
+작업이고 확정 광고·creative·최초 이력이 있으면 CLI의
+<code>recheck-paused</code>로 한 번 재확인할 수 있습니다. 조건에 맞지
+않거나 계속 심사 중이면 증빙을 남기고 관리자에게 전달합니다. 같은 작업을
+새로 제출하지 않습니다.</p>
+<h2 id="업로드-중단로그인-만료-복구">업로드 중단·로그인 만료 복구</h2>
+<ol type="1">
+<li>로그인 만료 안내가 나오면 <strong>다시 로그인</strong>합니다.</li>
+<li>작업 이력에서 중단된 <strong>업로드 대기</strong> 작업을 열고
+<strong>업로드 이어가기</strong>를 누릅니다.</li>
+<li>안내된 원본 파일 세 개를 다시 선택합니다. 파일명·크기·SHA-256과 광고
+설정·검수 해시가 기존 작업과 같아야 합니다.</li>
+<li>참조 광고를 다시 확인하고 업로드를 이어갑니다. 완료된 파일은 다시
+보내지 않으며, 확인된 업로드 조각은 같은 작업의 기록을 사용합니다.</li>
+</ol>
+<p>파일을 다시 인코딩하거나 이름을 바꾼 경우 기존 작업을 이어갈 수
+없습니다. <strong>새 작업으로 전환</strong>을 사용하되 기존 작업이 이미
+제출됐거나 생성 결과가 불명확한 경우에는 먼저 관리자에게 확인합니다.
+참조 검수본이 바뀌었거나 임시 파일 보관 기간이 끝난 작업도 재개할 수
+없습니다.</p>
+<p>이미 <strong>제출 준비</strong>라면 파일을 다시 올리지 말고 상세에서
+검수합니다. <strong>안전 중단</strong>이나 <strong>생성 여부 확인
+필요</strong>는 업로드 재개 대상이 아닙니다.</p>
+<h2 id="ads-manager-최종-검수와-소재-이력">Ads Manager 최종 검수와 소재
+이력</h2>
+<p><strong>마케터 검수 대기</strong> 작업의 <strong>Ads Manager에서
+검수</strong>를 열어 다음을 확인합니다.</p>
+<ul>
+<li>광고 번호와 creative 번호가 참조 광고의 번호와 다릅니다.</li>
+<li>광고가 PAUSED이며 올바른 광고 세트에 있습니다.</li>
+<li>Feed, Story, Reels에 맞는 영상과 배치가 연결되어 있습니다.</li>
+<li>본문·제목·CTA·앱 목적지가 검수한 참조 설정과 같습니다.</li>
+<li>Meta의 경고와 이슈를 확인했습니다.</li>
+</ul>
+<p>활성화, 예산 결정과 기존 광고 중지는 담당자의 기존 Ads Manager 승인
+절차로 수행합니다. 기존 광고의 이름이나 소재를 새 소재로 바꾸지
+않습니다.</p>
+<p>상세의 <strong>소재 이력 확인</strong>은 버튼을 누른 시점의
+광고명·creative를 최초 생성 기록과 비교합니다. 변경이 감지되면 같은 광고
+번호의 성과를 새 소재 성과로 단정하지 말고 관리자에게 변경 이력을
+확인합니다. 상시 감시나 외부 Ads Manager 수정 차단 기능은 아닙니다.</p>
+<p>이전 버전 작업에는 검수본이나 최초 생성 기준이 없을 수 있습니다. 이
+경우 <strong>기준 없음 / untracked</strong>로 표시하며 현재 값을 과거
+기준으로 만들어 넣지 않습니다.</p>
+<h2 id="보관과-이용-한도">보관과 이용 한도</h2>
+<p>미제출 임시 업로드는 생성 후 2일이 지나면 정리 대상입니다. 성공한
+작업의 임시 파일은 처리 후 정리하며, 그 외 제출된 작업의 임시 파일은
+마지막 변경 후 7일이 지나면 정리 대상입니다. 정기 정리 시점에 따라 실제
+삭제 시각은 달라질 수 있습니다.</p>
+<p>Meta가 사용할 공개 <code>/meta/</code> 소재는 자동 삭제하지 않습니다.
+공개 광고 영상은 비밀 저장소에 보관되는 파일이 아닙니다. 기존 공개
+경로를 직접 덮어쓰거나 삭제하지 마세요.</p>
+<p>사용자별 업로드 한도는 24시간 동안 20개 작업·5 GiB입니다. 이 한도는
+Cloudflare 계정 전체의 청구 상한이 아닙니다. 작업대 권한이나 운영 Meta
+토큰의 최소 권한 전환은 운영자가 관리합니다.</p>
+<h2 id="관리자에게-문의할-때">관리자에게 문의할 때</h2>
+<p>작업 ID, 신규 광고 ID(있으면), 화면의 오류 코드와
+<code>receipt-작업ID.json</code> 증빙을 전달하세요. 토큰 원문이나
+credential 파일을 보내지 않습니다. 어떤 작업인지 확인하기 전 새 초안이나
+광고를 반복 생성하지 마세요.</p>
+<h2 id="이-전달본의-확인-범위">이 전달본의 확인 범위</h2>
+<p>2026-09-07 배포본을 기준으로 묶었습니다. 서버 테스트 189개와 실제
+Windows CLI·실행기 테스트 16개가 통과한 파일을 포함합니다. Windows
+한글·공백 경로, MP4 사전 검사, 로그인 권한 검사, 요청·종료 코드 처리를
+확인했습니다. Windows 테스트의 API 응답은 모의이며 특정 마케터 본인
+계정의 실제 로그인 성공을 대신 증명하지는 않습니다. 실제 Meta 심사
+승인이나 집행 결과는 별도입니다.</p>
+<p>최신 파일은 작업대의 ‘Claude Code 연결’에서 받을 수 있습니다. 교체할
+때는 기존 작업 ID와 원본·manifest·증빙을 보관하고 도구 파일만
+갱신하세요.</p>
+</body>
+</html>

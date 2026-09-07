@@ -1,0 +1,22 @@
+{
+  "gameId": "rabbit-hole",
+  "language": "EN",
+  "targetAdsetId": "REPLACE_ADSET_ID",
+  "referenceAdId": "REPLACE_REFERENCE_AD_ID",
+  "newAdName": "RH_VD_EN_Concept_v01_2609",
+  "reviewedSourceHash": "REPLACE_WITH_PREVIEW_HASH",
+  "assets": [
+    {
+      "ratio": "9x16",
+      "path": "videos/9x16.mp4"
+    },
+    {
+      "ratio": "1x1",
+      "path": "videos/1x1.mp4"
+    },
+    {
+      "ratio": "16x9",
+      "path": "videos/16x9.mp4"
+    }
+  ]
+}

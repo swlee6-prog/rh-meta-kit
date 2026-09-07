@@ -1,0 +1,11 @@
+{
+  "package": "Rabbit Hole Meta Workbench Marketer Kit",
+  "preparedDate": "2026-09-07",
+  "baseWorkerVersion": "8c69c923-090c-4273-b56f-e1cacce92573",
+  "baseDeploymentVerifiedAt": "2026-09-07T11:42:31+09:00",
+  "entryDocument": "00_START_HERE.html",
+  "service": "https://meta-ads.rabbithole-studios.io/",
+  "runtime": "Node.js >=22",
+  "containsCredentials": false,
+  "containsVideos": false
+}
