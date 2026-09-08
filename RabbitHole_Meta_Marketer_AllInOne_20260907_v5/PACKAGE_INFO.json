@@ -1,0 +1,29 @@
+{
+  "version": "v5",
+  "date": "2026-09-07",
+  "workerVersion": "45a7f03a-3934-487c-93a1-d129258acd6e",
+  "workerDeployment": "86585828-bdeb-46f1-9ef8-dae1cfb2c08f",
+  "productionOrigin": "https://meta-ads.rabbithole-studios.io",
+  "environment": "Claude Code Desktop Local / Node.js 22+",
+  "features": [
+    "browser connect without token copy",
+    "existing login reuse",
+    "MP4 folder aspect-ratio detection",
+    "new PAUSED only",
+    "unique name resolution across all catalog pages",
+    "numbered ambiguous choices without entering ad IDs",
+    "history-first continuation and per-operation receipts"
+  ],
+  "containsCredentials": false,
+  "containsCreativeVideos": false,
+  "adversarialFixes": [
+    "reject non-regular files without blocking",
+    "compare MP4 FourCC without ASCII high-bit masking"
+  ],
+  "validation": {
+    "actualClaudeScenarios": 8,
+    "backendForClaudeTests": "loopback fixture with synthetic MP4s, not live Meta",
+    "windowsCliPassed": 28,
+    "windowsClaudeLoggedIn": false
+  }
+}
