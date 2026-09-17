@@ -12,6 +12,12 @@ export const ORIGIN = 'https://meta-ads.rabbithole-studios.io';
 const TOKEN_RE = /^rhm_[a-f0-9]{64}$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const RATIOS = ['9x16', '1x1', '16x9'];
+// Mirrors games.json in the workbench release. check-manifest stays local-only,
+// so the CLI validates against this embedded copy; tests fail if it drifts.
+export const GAME_REGISTRY = {
+  'rabbit-hole': { languages: ['EN','KO','JA','DE','FR','ES','PT','ID','TH','ZH-CN','ZH-TW'] },
+  'card-of-demon-slayer': { languages: ['EN','KO','JA','DE','FR','ES','PT','ID','TH','ZH-CN','ZH-TW'] },
+};
 const CONFIG_DIR = join(homedir(), '.rh-meta-workbench');
 const CREDENTIAL_FILE = join(CONFIG_DIR, 'credentials.json');
 
@@ -27,7 +33,7 @@ export function parseArgs(args) {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (!arg.startsWith('--')) { positional.push(arg); continue; }
-    if (!['--adset', '--ad', '--adset-name', '--reference-name', '--campaign-name', '--after', '--confirm-new-paused', '--output', '--ratio', '--manifest', '--interval', '--timeout', '--query', '--state', '--before', '--limit', '--help'].includes(arg) || arg in flags) throw new Error(`Unknown or duplicate option: ${arg}`);
+    if (!['--adset', '--ad', '--adset-name', '--reference-name', '--campaign-name', '--game', '--after', '--confirm-new-paused', '--output', '--ratio', '--manifest', '--interval', '--timeout', '--query', '--state', '--before', '--limit', '--help'].includes(arg) || arg in flags) throw new Error(`Unknown or duplicate option: ${arg}`);
     if (['--confirm-new-paused', '--help'].includes(arg)) flags[arg] = true;
     else { if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Missing value: ${arg}`); flags[arg] = args[++i]; }
   }
@@ -37,7 +43,8 @@ export function parseArgs(args) {
 export function validateManifest(manifest) {
   const allowed = ['gameId', 'language', 'targetAdsetId', 'referenceAdId', 'newAdName', 'reviewedSourceHash', 'assets'];
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest) || Object.keys(manifest).some((key) => !allowed.includes(key))) throw new Error('Manifest contains unsupported fields. Existing ad IDs must never be supplied as output IDs.');
-  if (manifest.gameId !== 'rabbit-hole' || !['EN','KO','JA','DE','FR','ES','PT','ID','TH','ZH-CN','ZH-TW'].includes(manifest.language)) throw new Error('Unsupported game or language.');
+  const game = typeof manifest.gameId === 'string' ? GAME_REGISTRY[manifest.gameId] : undefined;
+  if (!game || !game.languages.includes(manifest.language)) throw new Error('Unsupported game or language.');
   for (const field of ['targetAdsetId', 'referenceAdId']) if (typeof manifest[field] !== 'string' || !/^\d{5,30}$/.test(manifest[field])) throw new Error(`${field} must be a string of digits.`);
   if (typeof manifest.newAdName !== 'string' || manifest.newAdName.length > 160 || !/^[\p{L}\p{N}][\p{L}\p{N}_.()\- ]+$/u.test(manifest.newAdName)) throw new Error('Invalid newAdName.');
   if (typeof manifest.reviewedSourceHash !== 'string' || !/^[a-f0-9]{64}$/.test(manifest.reviewedSourceHash)) throw new Error('Run preview, review its targeting/copy/links, and put the approved hash in reviewedSourceHash.');
@@ -482,11 +489,15 @@ export async function waitForOperation(operationId, api, { interval = 10, timeou
 }
 
 // Resolve names only after exhaustive, consistent catalog reads. Never pick a first match.
-export async function resolveSource({ adsetName, referenceName, campaignName }, api) {
+export async function resolveSource({ adsetName, referenceName, campaignName, gameId = 'rabbit-hole' }, api) {
   const validName = (name) => typeof name === 'string' && name.trim().length > 0 && name.length <= 512;
   if (!validName(adsetName) || !validName(referenceName) || (campaignName !== undefined && !validName(campaignName))) {
     return { ok: false, code: 'INVALID_SOURCE_NAMES', candidates: [], nextAction: 'Supply exact ad set and reference names; optionally supply the exact campaign name.' };
   }
+  if (typeof gameId !== 'string' || !GAME_REGISTRY[gameId]) {
+    return { ok: false, code: 'UNKNOWN_GAME', candidates: [], nextAction: 'Update rh-meta.mjs from the workbench downloads and retry with a supported game.' };
+  }
+  const gameQuery = `gameId=${encodeURIComponent(gameId)}`;
   const fail = (code, candidates, nextAction) => ({ ok: false, code, candidates, nextAction });
   const readCatalog = async (path, kind) => {
     const byId = new Map(), cursors = new Set();
@@ -516,18 +527,18 @@ export async function resolveSource({ adsetName, referenceName, campaignName }, 
     throw new Error('Catalog page limit');
   };
   let adsets, references;
-  try { adsets = await readCatalog('/catalog/adsets', 'adset'); }
+  try { adsets = await readCatalog(`/catalog/adsets?${gameQuery}`, 'adset'); }
   catch { return fail('CATALOG_INCOMPLETE', [], 'The full ad set catalog could not be confirmed. Retry this read-only command later; do not select from partial results.'); }
   const matches = adsets.filter((item) => item.name === adsetName && (campaignName === undefined || item.campaign.name === campaignName));
   if (matches.length !== 1) return fail(matches.length ? 'ADSET_AMBIGUOUS' : 'ADSET_NOT_FOUND', matches.map((item, index) => ({ choice: index + 1, ...item })), 'Present numbered choices; ask the marketer for a choice or campaign, never an ad ID or ID suffix. Identical settings do not authorize choosing automatically.');
   const adset = matches[0];
-  try { references = await readCatalog(`/catalog/ads?adsetId=${adset.id}`, 'reference'); }
+  try { references = await readCatalog(`/catalog/ads?adsetId=${adset.id}&${gameQuery}`, 'reference'); }
   catch { return fail('CATALOG_INCOMPLETE', [], 'The full reference catalog could not be confirmed. Retry this read-only command later; do not select from partial results.'); }
   const referenceMatches = references.filter((item) => item.name === referenceName);
   if (referenceMatches.length !== 1) return fail(referenceMatches.length ? 'REFERENCE_AMBIGUOUS' : 'REFERENCE_NOT_FOUND', referenceMatches.map((item, index) => ({ choice: index + 1, ...item, adsetId: adset.id, adsetName: adset.name, campaign: adset.campaign })), 'Present numbered choices; ask the marketer for a choice or campaign, never an ad ID or ID suffix. Identical settings do not authorize choosing the first ID.');
   const reference = referenceMatches[0];
   try {
-    const preview = await api(`/source-preview?adsetId=${adset.id}&adId=${reference.id}`);
+    const preview = await api(`/source-preview?${gameQuery}&adsetId=${adset.id}&adId=${reference.id}`);
     if (!preview || typeof preview.hash !== 'string' || !/^[a-f0-9]{64}$/.test(preview.hash)) throw new Error('Invalid preview');
     return { ok: true, adset, reference, preview };
   } catch { return fail('SOURCE_PREVIEW_UNCONFIRMED', [], 'Source preview could not be confirmed. Retry this read-only command later; do not prepare a manifest from an unconfirmed source.'); }
@@ -542,10 +553,10 @@ Usage: node rh-meta.mjs COMMAND [options]
   doctor                        Diagnose runtime, private login and API access as safe JSON
   check-manifest FILE.json      Local-only schema/file/hash check; no login or upload
   whoami                        Show authenticated identity
-  adsets [--after CURSOR]        List allowed account ad sets
-  ads --adset ID [--after CURSOR] List reference ads in one ad set
-  resolve-source --adset-name NAME --reference-name NAME [--campaign-name NAME]  Resolve unique source names across all pages
-  preview --adset ID --ad ID     Review inherited settings; copy approved hash into manifest
+  adsets [--game ID] [--after CURSOR]        List allowed account ad sets
+  ads --adset ID [--game ID] [--after CURSOR] List reference ads in one ad set
+  resolve-source --adset-name NAME --reference-name NAME [--campaign-name NAME] [--game ID]  Resolve unique source names across all pages
+  preview --adset ID --ad ID [--game ID]     Review inherited settings; copy approved hash into manifest
   prepare manifest.json         Hash and upload 3 MP4s; create draft only, NEVER submit
   resume OPERATION_ID --manifest FILE.json  Resume the SAME draft after checking hashes
   submit OPERATION_ID --confirm-new-paused  Explicitly create a NEW PAUSED ad
@@ -558,6 +569,7 @@ Usage: node rh-meta.mjs COMMAND [options]
   download OPERATION_ID --ratio 9x16 --output FILE.mp4  Save source (refuses overwrite)
   --help                        This help
 
+Catalog commands default to --game rabbit-hole; use --game card-of-demon-slayer for that game. The manifest gameId must match the game used for preview.
 Start with connect. A valid saved connection is reused without opening the browser.
 Otherwise, approve the displayed code in your browser; the CLI saves the 7-day connection
 privately. You do not need to copy a token or give one to Claude.
@@ -582,7 +594,7 @@ export async function main(args = process.argv.slice(2)) {
   const [command, id] = positional;
   if (!command || command === 'help' || flags['--help']) { process.stdout.write(HELP); return; }
   if (positional.length > 2) throw new Error('Too many arguments.');
-  const specs = { connect: [0, []], 'scan-folder': [1, []], doctor: [0, []], 'check-manifest': [1, []], login: [0, []], logout: [0, []], whoami: [0, []], 'resolve-source': [0, ['--adset-name','--reference-name','--campaign-name']], adsets: [0, ['--after']], ads: [0, ['--adset','--after']], preview: [0, ['--adset','--ad']], prepare: [1, []], resume: [1, ['--manifest']], wait: [1, ['--interval','--timeout']], submit: [1, ['--confirm-new-paused']], 'recheck-paused': [1, []], status: [1, []], list: [0, ['--query','--state','--before','--limit']], lineage: [1, []], export: [1, ['--output']], download: [1, ['--output','--ratio']] };
+  const specs = { connect: [0, []], 'scan-folder': [1, []], doctor: [0, []], 'check-manifest': [1, []], login: [0, []], logout: [0, []], whoami: [0, []], 'resolve-source': [0, ['--adset-name','--reference-name','--campaign-name','--game']], adsets: [0, ['--game','--after']], ads: [0, ['--adset','--game','--after']], preview: [0, ['--adset','--ad','--game']], prepare: [1, []], resume: [1, ['--manifest']], wait: [1, ['--interval','--timeout']], submit: [1, ['--confirm-new-paused']], 'recheck-paused': [1, []], status: [1, []], list: [0, ['--query','--state','--before','--limit']], lineage: [1, []], export: [1, ['--output']], download: [1, ['--output','--ratio']] };
   const spec = specs[command];
   if (!spec || positional.length !== spec[0] + 1 || Object.keys(flags).some((flag) => !spec[1].includes(flag))) throw new Error('Invalid command arguments. Use --help.');
   if (command === 'doctor') { const result = await doctor(); if (!result.ok) process.exitCode = 1; return result; }
@@ -608,18 +620,20 @@ export async function main(args = process.argv.slice(2)) {
   if (command === 'resume' && !flags['--manifest']) throw new Error('--manifest is required to verify the original files.');
   if (command === 'list' && flags['--before'] && !UUID_RE.test(flags['--before'])) throw new Error('--before must be an operation UUID.');
   if (command === 'list' && flags['--limit'] && (!Number.isInteger(Number(flags['--limit'])) || Number(flags['--limit']) < 1 || Number(flags['--limit']) > 100)) throw new Error('--limit must be 1–100.');
+  const gameId = flags['--game'] || 'rabbit-hole';
+  if (!GAME_REGISTRY[gameId]) throw new Error(`Unknown game "${gameId}". Update rh-meta.mjs from the workbench downloads and retry with a supported game.`);
   const api = createApi({ token: await loadToken(origin), origin });
   const cursor = flags['--after'] ? `&after=${encodeURIComponent(flags['--after'])}` : '';
   switch (command) {
     case 'resolve-source': {
-      const result = await resolveSource({ adsetName: flags['--adset-name'], referenceName: flags['--reference-name'], campaignName: flags['--campaign-name'] }, api);
+      const result = await resolveSource({ adsetName: flags['--adset-name'], referenceName: flags['--reference-name'], campaignName: flags['--campaign-name'], gameId }, api);
       if (!result.ok) process.exitCode = 1;
       return result;
     }
     case 'whoami': return api('/me');
-    case 'adsets': return api(`/catalog/adsets?${cursor.slice(1)}`);
-    case 'ads': return api(`/catalog/ads?adsetId=${flags['--adset']}${cursor}`);
-    case 'preview': return api(`/source-preview?adsetId=${flags['--adset']}&adId=${flags['--ad']}`);
+    case 'adsets': return api(`/catalog/adsets?gameId=${encodeURIComponent(gameId)}${cursor}`);
+    case 'ads': return api(`/catalog/ads?adsetId=${flags['--adset']}&gameId=${encodeURIComponent(gameId)}${cursor}`);
+    case 'preview': return api(`/source-preview?gameId=${encodeURIComponent(gameId)}&adsetId=${flags['--adset']}&adId=${flags['--ad']}`);
     case 'prepare': return prepare(resolve(id), api);
     case 'resume': return resume(id, resolve(flags['--manifest']), api);
     case 'wait': {

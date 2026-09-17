@@ -1,8 +1,9 @@
 {
-  "version": "v5",
-  "date": "2026-09-07",
-  "workerVersion": "45a7f03a-3934-487c-93a1-d129258acd6e",
-  "workerDeployment": "86585828-bdeb-46f1-9ef8-dae1cfb2c08f",
+  "version": "v6",
+  "date": "2026-09-16",
+  "workerVersion": "7c3d9651-584c-4e6f-ba4c-4ee2674fa5ab",
+  "workerDeployment": null,
+  "deployedAt": "2026-09-16T09:11:41Z",
   "productionOrigin": "https://meta-ads.rabbithole-studios.io",
   "environment": "Claude Code Desktop Local / Node.js 22+",
   "features": [
@@ -12,7 +13,10 @@
     "new PAUSED only",
     "unique name resolution across all catalog pages",
     "numbered ambiguous choices without entering ad IDs",
-    "history-first continuation and per-operation receipts"
+    "history-first continuation and per-operation receipts",
+    "multi-game support (rabbit-hole, card-of-demon-slayer)",
+    "game-scoped catalog, previews and drafts",
+    "browser PAUSED recheck without CLI"
   ],
   "containsCredentials": false,
   "containsCreativeVideos": false,
