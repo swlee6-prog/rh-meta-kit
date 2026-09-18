@@ -2,7 +2,7 @@
 // Node.js >=22, dependency-free. Never pass a token as an argument.
 import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
-import { open, readFile, mkdir, rename, unlink, lstat, chmod, opendir } from 'node:fs/promises';
+import { open, readFile, writeFile, mkdir, rename, unlink, lstat, chmod, opendir } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { resolve, dirname, basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +33,7 @@ export function parseArgs(args) {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (!arg.startsWith('--')) { positional.push(arg); continue; }
-    if (!['--adset', '--ad', '--adset-name', '--reference-name', '--campaign-name', '--game', '--after', '--confirm-new-paused', '--output', '--ratio', '--manifest', '--interval', '--timeout', '--query', '--state', '--before', '--limit', '--help'].includes(arg) || arg in flags) throw new Error(`Unknown or duplicate option: ${arg}`);
+    if (!['--adset', '--ad', '--adset-name', '--reference-name', '--campaign-name', '--game', '--after', '--confirm-new-paused', '--supersede-failed', '--output', '--ratio', '--manifest', '--interval', '--timeout', '--query', '--state', '--before', '--limit', '--help'].includes(arg) || arg in flags) throw new Error(`Unknown or duplicate option: ${arg}`);
     if (['--confirm-new-paused', '--help'].includes(arg)) flags[arg] = true;
     else { if (!args[i + 1] || args[i + 1].startsWith('--')) throw new Error(`Missing value: ${arg}`); flags[arg] = args[++i]; }
   }
@@ -372,9 +372,20 @@ export async function checkManifest(manifestPath) {
 }
 
 // This diagnostic uses only fixed classifications, never raw server/native error text.
-export async function doctor({ env = process.env, configDir = CONFIG_DIR, nodeVersion = process.versions.node, fetcher = globalThis.fetch } = {}) {
+async function checkCliUpdate(fetcher, origin, token, selfPath) {
+  try {
+    if (!selfPath.endsWith('.mjs')) return { status: 'unknown' };
+    const local = createHash('sha256').update(await readFile(selfPath)).digest('hex');
+    const response = await fetcher(`${origin}/agent/v1/cli-version`, { method: 'GET', headers: { authorization: `Bearer ${token}`, accept: 'application/json' }, redirect: 'manual', signal: AbortSignal.timeout(15_000) });
+    const data = await response.json().catch(() => null);
+    if (!/^[a-f0-9]{64}$/.test(data?.sha256 || '')) return { status: 'unknown' };
+    return { status: data.sha256 === local ? 'current' : 'outdated' };
+  } catch { return { status: 'unknown' }; }
+}
+
+export async function doctor({ env = process.env, configDir = CONFIG_DIR, nodeVersion = process.versions.node, fetcher = globalThis.fetch, selfPath = process.argv[1] || '' } = {}) {
   const supported = Number(nodeVersion.split('.')[0]) >= 22;
-  const result = { ok: false, command: 'doctor', runtime: { node: nodeVersion, minimumMajor: 22, supported }, credential: { source: env.RH_META_TOKEN ? 'environment' : 'saved', status: 'not_checked' }, connection: { status: 'not_checked' }, nextAction: '' };
+  const result = { ok: false, command: 'doctor', runtime: { node: nodeVersion, minimumMajor: 22, supported }, credential: { source: env.RH_META_TOKEN ? 'environment' : 'saved', status: 'not_checked' }, connection: { status: 'not_checked' }, cliUpdate: { status: 'not_checked' }, nextAction: '' };
   if (!supported) return { ...result, nextAction: 'Install Node.js 22 or newer, reopen the terminal, then run doctor.' };
   let origin;
   try { origin = apiOrigin(env); }
@@ -407,8 +418,28 @@ export async function doctor({ env = process.env, configDir = CONFIG_DIR, nodeVe
       if (typeof data?.email !== 'string' || typeof data?.role !== 'string') status = 'unexpected_response';
     } catch { status = 'unexpected_response'; }
   } else await response.body?.cancel().catch(() => {});
-  const nextAction = status === 'connected' ? 'Connection is ready. Give Claude the material folder and your instructions; scan-folder and check-manifest can prepare the files. Reuse resume for an existing unsubmitted draft.' : status === 'unauthorized' ? result.credential.source === 'environment' ? 'Remove the rejected RH_META_TOKEN override from the private process environment, then run connect and approve in your browser.' : 'Run connect to renew the connection through browser approval. The server cannot distinguish expired, revoked and invalid tokens here.' : ['access_redirect', 'access_html'].includes(status) ? 'Ask the workbench administrator to check Access configuration for /agent/v1/* only. Keep browser authentication enabled.' : status === 'rate_limited' ? 'Wait before rerunning doctor. No automatic retry was performed.' : status === 'forbidden' ? 'Ask the administrator to verify your allowed account and API permissions. Do not use management credentials.' : 'Check service availability with the administrator. Do not retry prepare or submit blindly.';
-  return { ...result, ok: status === 'connected', connection: { status, httpStatus }, nextAction };
+  const baseNextAction = status === 'connected' ? 'Connection is ready. Give Claude the material folder and your instructions; scan-folder and check-manifest can prepare the files. Reuse resume for an existing unsubmitted draft.' : status === 'unauthorized' ? result.credential.source === 'environment' ? 'Remove the rejected RH_META_TOKEN override from the private process environment, then run connect and approve in your browser.' : 'Run connect to renew the connection through browser approval. The server cannot distinguish expired, revoked and invalid tokens here.' : ['access_redirect', 'access_html'].includes(status) ? 'Ask the workbench administrator to check Access configuration for /agent/v1/* only. Keep browser authentication enabled.' : status === 'rate_limited' ? 'Wait before rerunning doctor. No automatic retry was performed.' : status === 'forbidden' ? 'Ask the administrator to verify your allowed account and API permissions. Do not use management credentials.' : 'Check service availability with the administrator. Do not retry prepare or submit blindly.';
+  const cliUpdate = status === 'connected' ? await checkCliUpdate(fetcher, origin, token, selfPath) : result.cliUpdate;
+  const nextAction = cliUpdate.status === 'outdated' ? 'This CLI copy is outdated. Run update to replace it with the verified current file, then rerun doctor.' : baseNextAction;
+  return { ...result, ok: status === 'connected', connection: { status, httpStatus }, cliUpdate, nextAction };
+}
+
+export async function updateCli(api, selfPath) {
+  if (typeof selfPath !== 'string' || !selfPath.endsWith('.mjs')) throw new Error('Cannot locate the running CLI file; re-download it from the Workbench downloads page.');
+  const current = createHash('sha256').update(await readFile(selfPath)).digest('hex');
+  const bundle = await api('/cli-download', { method: 'GET' });
+  if (typeof bundle?.source !== 'string' || !/^[a-f0-9]{64}$/.test(bundle?.sha256 || '')) throw new Error('Server did not return a valid CLI package; kept the current file.');
+  if (createHash('sha256').update(bundle.source).digest('hex') !== bundle.sha256) throw new Error('Downloaded CLI failed integrity check; kept the current file.');
+  if (bundle.sha256 === current) return { updated: false, sha256: current };
+  const tmp = `${selfPath}.update-${randomUUID()}`;
+  try {
+    await writeFile(tmp, bundle.source, 'utf8');
+    await rename(tmp, selfPath);
+  } catch (error) {
+    await unlink(tmp).catch(() => {});
+    throw error;
+  }
+  return { updated: true, sha256: bundle.sha256, previousSha256: current };
 }
 
 export async function prepare(manifestPath, api) {
@@ -495,7 +526,7 @@ export async function resolveSource({ adsetName, referenceName, campaignName, ga
     return { ok: false, code: 'INVALID_SOURCE_NAMES', candidates: [], nextAction: 'Supply exact ad set and reference names; optionally supply the exact campaign name.' };
   }
   if (typeof gameId !== 'string' || !GAME_REGISTRY[gameId]) {
-    return { ok: false, code: 'UNKNOWN_GAME', candidates: [], nextAction: 'Update rh-meta.mjs from the workbench downloads and retry with a supported game.' };
+    return { ok: false, code: 'UNKNOWN_GAME', candidates: [], nextAction: 'Run update to refresh rh-meta.mjs and retry with a supported game.' };
   }
   const gameQuery = `gameId=${encodeURIComponent(gameId)}`;
   const fail = (code, candidates, nextAction) => ({ ok: false, code, candidates, nextAction });
@@ -551,6 +582,7 @@ Usage: node rh-meta.mjs COMMAND [options]
   login                         Fallback only: privately paste a manually issued token
   logout                        Remove local login (revoke in Workbench for full revocation)
   doctor                        Diagnose runtime, private login and API access as safe JSON
+  update                        Replace this file with the verified current CLI; no-op when current
   check-manifest FILE.json      Local-only schema/file/hash check; no login or upload
   whoami                        Show authenticated identity
   adsets [--game ID] [--after CURSOR]        List allowed account ad sets
@@ -559,8 +591,9 @@ Usage: node rh-meta.mjs COMMAND [options]
   preview --adset ID --ad ID [--game ID]     Review inherited settings; copy approved hash into manifest
   prepare manifest.json         Hash and upload 3 MP4s; create draft only, NEVER submit
   resume OPERATION_ID --manifest FILE.json  Resume the SAME draft after checking hashes
-  submit OPERATION_ID --confirm-new-paused  Explicitly create a NEW PAUSED ad
+  submit OPERATION_ID --confirm-new-paused [--supersede-failed PREVIOUS_OPERATION_UUID]  Explicitly create a NEW PAUSED ad
   recheck-paused OPERATION_ID   Recheck a confirmed PAUSED ad after AD_PAUSED_TIMEOUT
+  recover OPERATION_ID          Record a stranded operation as FAILED after its workflow died
   status OPERATION_ID            State, receipts, errors and preview results
   wait OPERATION_ID [--interval 10] [--timeout 600]  Poll until terminal state
   list [--query TEXT] [--state STATE] [--before UUID] [--limit 40]  History
@@ -584,6 +617,10 @@ Production host is fixed. RH_META_DEV_ORIGIN allows loopback only; development c
 are stored separately for each origin and never replace the production connection.
 All normal results are JSON on stdout; errors/progress on stderr. Failures exit nonzero.
 No automatic POST retry. On unknown results inspect list/status; never duplicate writes.
+--supersede-failed requests one explicitly approved retry from an ASSETS_READY draft with a different UUID.
+Reuse an existing draft with the same reviewed files/settings/name; never rename to bypass duplicate protection.
+The backend must confirm a finished failure with no creative/ad creation or uncertain external effects; unsafe retries are refused.
+On a duplicate response, follow the returned operation.id with status/wait; the requested draft was not newly submitted.
 prepare resolves asset paths relative to manifest (Windows paths accepted on Windows).
 The reference ad is read-only. No activation, budget change, rename or existing-ID overwrite.
 Download/export refuse symlinks and existing output files. Review in Ads Manager before activation.
@@ -594,7 +631,7 @@ export async function main(args = process.argv.slice(2)) {
   const [command, id] = positional;
   if (!command || command === 'help' || flags['--help']) { process.stdout.write(HELP); return; }
   if (positional.length > 2) throw new Error('Too many arguments.');
-  const specs = { connect: [0, []], 'scan-folder': [1, []], doctor: [0, []], 'check-manifest': [1, []], login: [0, []], logout: [0, []], whoami: [0, []], 'resolve-source': [0, ['--adset-name','--reference-name','--campaign-name','--game']], adsets: [0, ['--game','--after']], ads: [0, ['--adset','--game','--after']], preview: [0, ['--adset','--ad','--game']], prepare: [1, []], resume: [1, ['--manifest']], wait: [1, ['--interval','--timeout']], submit: [1, ['--confirm-new-paused']], 'recheck-paused': [1, []], status: [1, []], list: [0, ['--query','--state','--before','--limit']], lineage: [1, []], export: [1, ['--output']], download: [1, ['--output','--ratio']] };
+  const specs = { connect: [0, []], 'scan-folder': [1, []], doctor: [0, []], update: [0, []], 'check-manifest': [1, []], login: [0, []], logout: [0, []], whoami: [0, []], 'resolve-source': [0, ['--adset-name','--reference-name','--campaign-name','--game']], adsets: [0, ['--game','--after']], ads: [0, ['--adset','--game','--after']], preview: [0, ['--adset','--ad','--game']], prepare: [1, []], resume: [1, ['--manifest']], wait: [1, ['--interval','--timeout']], submit: [1, ['--confirm-new-paused','--supersede-failed']], 'recheck-paused': [1, []], recover: [1, []], status: [1, []], list: [0, ['--query','--state','--before','--limit']], lineage: [1, []], export: [1, ['--output']], download: [1, ['--output','--ratio']] };
   const spec = specs[command];
   if (!spec || positional.length !== spec[0] + 1 || Object.keys(flags).some((flag) => !spec[1].includes(flag))) throw new Error('Invalid command arguments. Use --help.');
   if (command === 'doctor') { const result = await doctor(); if (!result.ok) process.exitCode = 1; return result; }
@@ -611,17 +648,21 @@ export async function main(args = process.argv.slice(2)) {
     await saveToken(token);
     return { loggedIn: true, email: actor.email, credentialFile: CREDENTIAL_FILE };
   }
-  if (['submit','recheck-paused','resume','wait','status','lineage','export','download'].includes(command) && !UUID_RE.test(id || '')) throw new Error('A valid operation UUID is required.');
+  if (['submit','recheck-paused','recover','resume','wait','status','lineage','export','download'].includes(command) && !UUID_RE.test(id || '')) throw new Error('A valid operation UUID is required.');
   if (['ads','preview'].includes(command) && !/^\d{5,30}$/.test(flags['--adset'] || '')) throw new Error('--adset must be a Meta numeric ID.');
   if (command === 'preview' && !/^\d{5,30}$/.test(flags['--ad'] || '')) throw new Error('--ad must be a Meta numeric ID.');
   if (command === 'submit' && !flags['--confirm-new-paused']) throw new Error('Submission requires --confirm-new-paused. Obtain marketer approval before this command.');
+  if (flags['--supersede-failed'] !== undefined) {
+    if (!UUID_RE.test(flags['--supersede-failed'])) throw new Error('--supersede-failed must be a valid previous operation UUID.');
+    if (flags['--supersede-failed'] === id) throw new Error('--supersede-failed must differ from the operation UUID being submitted.');
+  }
   if (['export','download'].includes(command) && !flags['--output']) throw new Error('--output is required.');
   if (command === 'download' && !RATIOS.includes(flags['--ratio'])) throw new Error('--ratio must be 9x16, 1x1 or 16x9.');
   if (command === 'resume' && !flags['--manifest']) throw new Error('--manifest is required to verify the original files.');
   if (command === 'list' && flags['--before'] && !UUID_RE.test(flags['--before'])) throw new Error('--before must be an operation UUID.');
   if (command === 'list' && flags['--limit'] && (!Number.isInteger(Number(flags['--limit'])) || Number(flags['--limit']) < 1 || Number(flags['--limit']) > 100)) throw new Error('--limit must be 1–100.');
   const gameId = flags['--game'] || 'rabbit-hole';
-  if (!GAME_REGISTRY[gameId]) throw new Error(`Unknown game "${gameId}". Update rh-meta.mjs from the workbench downloads and retry with a supported game.`);
+  if (!GAME_REGISTRY[gameId]) throw new Error(`Unknown game "${gameId}". Run update to refresh rh-meta.mjs and retry with a supported game.`);
   const api = createApi({ token: await loadToken(origin), origin });
   const cursor = flags['--after'] ? `&after=${encodeURIComponent(flags['--after'])}` : '';
   switch (command) {
@@ -631,6 +672,7 @@ export async function main(args = process.argv.slice(2)) {
       return result;
     }
     case 'whoami': return api('/me');
+    case 'update': return updateCli(api, process.argv[1] || '');
     case 'adsets': return api(`/catalog/adsets?gameId=${encodeURIComponent(gameId)}${cursor}`);
     case 'ads': return api(`/catalog/ads?adsetId=${flags['--adset']}&gameId=${encodeURIComponent(gameId)}${cursor}`);
     case 'preview': return api(`/source-preview?gameId=${encodeURIComponent(gameId)}&adsetId=${flags['--adset']}&adId=${flags['--ad']}`);
@@ -642,7 +684,15 @@ export async function main(args = process.argv.slice(2)) {
       return result;
     }
     case 'recheck-paused': return api(`/operations/${id}/recheck-paused`, { method: 'POST', body: {} });
-    case 'submit': return api(`/operations/${id}/submit`, { method: 'POST', body: {} });
+    case 'recover': return api(`/operations/${id}/recover-stranded`, { method: 'POST', body: {} });
+    case 'submit': {
+      const body = flags['--supersede-failed'] === undefined ? {} : { supersedeFailedOperationId: flags['--supersede-failed'] };
+      const result = await api(`/operations/${id}/submit`, { method: 'POST', body });
+      if (result.duplicate === true || (result.operation?.id && result.operation.id !== id)) {
+        process.stderr.write(JSON.stringify({ requestedOperationId: id, operationId: result.operation?.id, note: 'This response does not confirm a new submission of the requested draft. Follow the returned operation.id with status/wait; do not repeat submit. If the returned ID is missing, inspect list/status first.' }) + '\n');
+      }
+      return result;
+    }
     case 'status': return api(`/operations/${id}`);
     case 'list': {
       const query = new URLSearchParams();
